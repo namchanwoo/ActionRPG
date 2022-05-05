@@ -1,0 +1,142 @@
+﻿@startuml
+
+ALS_PlayerController -> ALS_PlayerCameraManager : "PlayerCameraManagerClass"
+ALS_PlayerCameraManager --> ALS_PlayerCameraBehavior : "애님인스턴스" > Parameter
+ALS_PlayerController ..|> IALS_Controller : "Realization"
+
+class ALS_PlayerController
+{
+__Debug Members__
+	/**포커스 된 디버그 캐릭터*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-ACharacter* DebugFocusCharacter;
+
+	/**사용 가능한 디버그 캐릭터들*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-TArray<ACharacter*> AvailableDebugCharacters;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-bool bShowHUD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-bool bDebugView;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-bool bShowTraces;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-bool bShowDebugShapes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-bool bShowLayerColors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-bool bShowCharacterInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Debug Members", meta=(AllowPrivateAccess="true"))
+	-bool bSlomo;     
+	
+__Default Members__
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default Members", meta=(AllowPrivateAccess="true"))
+	-class UUW_ALSHUD* ALS_HUD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default Members", meta=(AllowPrivateAccess="true"))
+	-class UUW_OverlayStateSwitcher* OverlaySwitcher;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default Members", meta=(AllowPrivateAccess="true"))
+	-bool bOverlayMenuOpen;
+}
+
+class ALS_PlayerCameraManager
+{
+	+USkeletalMeshComponent* CameraBehavior;
+	
+	+APawn* ControlledPawn;
+	
+	+FVector DebugViewOffset;
+	
+	+FRotator DebugViewRotation;
+	
+	+FVector RootLocation;
+	
+	+FTransform SmoothedPivotTarget;
+	
+	+FVector PivotLocation;
+	
+	+FVector TargetCameraLocation;
+	
+	+FRotator TargetCameraRotation;
+	
+    void OnPossess(APawn* NewPawn);
+    
+__Function__
+
+   UFUNCTION(BlueprintCallable,Category="PlayerCameraManager Event")
+   	void OnPossess(APawn* NewPawn);
+   
+   	/**커스텀 카메라비헤이비어*/
+   	UFUNCTION(BlueprintCallable)
+   	void CustomCameraBehavior(FVector& OutLocation,FRotator& OutRotation,float& OutFov);
+   
+   	/**축 독립 지연 계산*/
+   	UFUNCTION(BlueprintPure,Category="PlayerCameraManager Event")
+   	FVector CalculateAxisIndependentLag(FVector InCurrentLocation,FVector InTargetLocation,FRotator InCameraRotation,FVector InLagSpeeds);
+   
+   	/**현재 카메라 애님 인스턴스의 커브 값을 가져옵니다*/
+   	UFUNCTION(BlueprintPure,Category="PlayerCameraManager Event")
+   	float GetCameraBehaviorParam(FName CurveName);
+   
+   	/**디버그 트레이스 타입을 가져옵니다*/
+   	UFUNCTION(BlueprintPure,Category="PlayerCameraManager Event")
+   	TEnumAsByte<EDrawDebugTrace::Type> GetDebugTraceType(TEnumAsByte<EDrawDebugTrace::Type> InShowTraceType);
+	
+}
+
+
+
+
+class ALS_PlayerCameraBehavior
+{
+__References Members__
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="References")
+	APlayerController* PlayerController;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="References")
+	APawn* ControlledPawn;
+	
+__Character Info Members__
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+EALSMovementState MovementState;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+EALSMovementAction MovementAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+EALSRotationMode RotationMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+EALSGait Gait;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+EALSStance Stance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+EALSViewMode ViewMode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+bool bRightShoulder;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Character Info")
+	+bool bDebugView;
+	
+	void UpdateCharacterInfo();
+}
+
+interface IALS_Controller
+{
++virtual FALS_DebugInfo I_GetDebugInfo()=0;
+}
+
+@enduml
